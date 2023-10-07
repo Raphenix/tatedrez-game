@@ -11,16 +11,28 @@ namespace RaphaelHerve.Tatedrez.Game
         [SerializeField]
         private SpriteRenderer _spriteRenderer;
         [SerializeField]
-        private Sprite _playerASprite;
+        private Sprite _player1Sprite;
         [SerializeField]
-        private Sprite _playerBSprite;
+        private Sprite _player2Sprite;
         [ShowNonSerializedField]
         private PlayerType _owner = PlayerType.None;
         [ShowNonSerializedField]
-        private bool _isPlacedOnBoard = false;
+        private Tile _currentTile = null;
 
+        // Movement
+        private Vector3 _targetPosition;
+        private Vector3 _currentMoveVelocity;
+
+        public PawnType PawnType => _pawnType;
         public PlayerType Owner => _owner;
-        public bool IsPlacedOnBoard => _isPlacedOnBoard;
+        public Tile CurrentTile => _currentTile;
+        public bool IsPlacedOnTile => _currentTile != null;
+        public Vector2Int Coordinates => _currentTile != null ? _currentTile.Coordinates : default;
+
+        private void Awake()
+        {
+            _targetPosition = transform.position;
+        }
 
         public void Init(PlayerType owner)
         {
@@ -34,10 +46,22 @@ namespace RaphaelHerve.Tatedrez.Game
 
             _spriteRenderer.sprite = owner switch
             {
-                PlayerType.PlayerA => _playerASprite,
-                PlayerType.PlayerB => _playerBSprite,
+                PlayerType.Player1 => _player1Sprite,
+                PlayerType.Player2 => _player2Sprite,
                 _ => null,
             };
+        }
+
+        private void Update() => ProcessSmoothDamping();
+
+        private void ProcessSmoothDamping() => transform.position = Vector3.SmoothDamp(transform.position, _targetPosition, ref _currentMoveVelocity, .05f/*, 10f, Time.deltaTime*/);
+
+        public void MoveTo(Vector3 position) => _targetPosition = position;
+
+        // TODO add placement animation and feedbacks, maybe cancel out smooth damping too
+        public void PlaceOnTile(Tile tile)
+        {
+            _currentTile = tile;
         }
     }
 }

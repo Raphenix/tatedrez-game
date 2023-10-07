@@ -1,3 +1,4 @@
+using NaughtyAttributes;
 using RaphaelHerve.Tatedrez.Enums;
 using UnityEngine;
 
@@ -5,8 +6,10 @@ namespace RaphaelHerve.Tatedrez.Game
 {
     public class InputController : MonoBehaviour
     {
-        [SerializeField]
+        [ShowNonSerializedField]
         private InputMode _inputMode;
+        [SerializeField]
+        private Collider _defaultRaycastPlane;
         [SerializeField]
         private LayerMask _tileLayerMask;
         [SerializeField]
@@ -14,6 +17,7 @@ namespace RaphaelHerve.Tatedrez.Game
 
         private Camera _mainCamera;
         private Pawn _selectedPawn;
+        private Tile _selectedTile;
 
         public InputMode InputMode
         {
@@ -24,10 +28,33 @@ namespace RaphaelHerve.Tatedrez.Game
         private void Awake()
         {
             _mainCamera = Camera.main;
+
+            GameManager.OnGameStateChanged += GameStateChanged;
+        }
+
+        private void OnDestroy()
+        {
+            GameManager.OnGameStateChanged -= GameStateChanged;
+        }
+
+        private void GameStateChanged(GameState from, GameState to)
+        {
+            InputMode = to switch
+            {
+                GameState.PiecePlacement => InputMode.PiecePlacement,
+                GameState.Dynamic => InputMode.Dynamic,
+                _ => InputMode.None,
+            };
         }
 
         private void Update()
         {
+            // No input mode
+            if (InputMode == InputMode.None)
+            {
+                return;
+            }
+
             // Press
             if (Input.GetMouseButtonDown(0))
             {
@@ -50,6 +77,7 @@ namespace RaphaelHerve.Tatedrez.Game
             // All inputs start with selecting a pawn
             if (!TryGetPawnOnRaycast(out Pawn pawn))
             {
+                Debug.Log("No pawn found");
                 return;
             }
 
@@ -60,7 +88,7 @@ namespace RaphaelHerve.Tatedrez.Game
             }
 
             // Pawn is already placed on board
-            if (InputMode == InputMode.PiecePlacement && pawn.IsPlacedOnBoard)
+            if (InputMode == InputMode.PiecePlacement && pawn.IsPlacedOnTile)
             {
                 return;
             }
@@ -75,6 +103,24 @@ namespace RaphaelHerve.Tatedrez.Game
             {
                 return;
             }
+
+            // Raycasting on a tile, snap to it
+            // TODO check if movement possible
+            if (TryGetTileOnRaycast(out Tile tile) && GameManager.Board.CanPlacePawnOnTile(_selectedPawn, tile))
+            {
+                _selectedTile = tile;
+                _selectedPawn.MoveTo(tile.transform.position);
+                return;
+            }
+
+            _selectedTile = null;
+
+            // Raycast on default plane, simply move around
+            if (RaycastDefaultPlane(out RaycastHit hitInfo))
+            {
+                _selectedPawn.MoveTo(hitInfo.point);
+                return;
+            }
         }
 
         private void HandleInputRelease()
@@ -84,11 +130,22 @@ namespace RaphaelHerve.Tatedrez.Game
             {
                 return;
             }
+
+            if (_selectedTile != null)
+            {
+                GameManager.Board.PlacePawnOnTile(_selectedPawn, _selectedTile);
+            }
+            else
+            {
+                _selectedPawn.MoveTo(_selectedPawn.CurrentTile.transform.position);
+            }
+
+            _selectedPawn = null;
         }
 
-        private bool Raycast(out RaycastHit hitInfo, int layerMask) => Physics.Raycast(_mainCamera.ScreenPointToRay(Input.mousePosition), out hitInfo, float.MaxValue, layerMask);
+        private bool RaycastDefaultPlane(out RaycastHit hitInfo) => _defaultRaycastPlane.Raycast(_mainCamera.ScreenPointToRay(Input.mousePosition), out hitInfo, float.MaxValue);
 
-        private bool TryGetComponentOnRaycast<T>(int layerMask, out T result)
+        private bool TryGetComponentOnRaycast<T>(int layerMask, out T result) where T : Component
         {
             if (!Physics.Raycast(_mainCamera.ScreenPointToRay(Input.mousePosition), out RaycastHit hitInfo, float.MaxValue, layerMask))
             {

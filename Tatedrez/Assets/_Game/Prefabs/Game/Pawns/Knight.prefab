@@ -12,6 +12,14 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -400368282195308359, guid: a8c497c2efcd1bc4b87e78d235c37865, type: 3}
+      propertyPath: _player1Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: a2daf251bd5718b44b37eeb5ad8b6d0f, type: 3}
+    - target: {fileID: -400368282195308359, guid: a8c497c2efcd1bc4b87e78d235c37865, type: 3}
+      propertyPath: _player2Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: e12f2ab291e8d7f4b9898f158c9e68bc, type: 3}
+    - target: {fileID: -400368282195308359, guid: a8c497c2efcd1bc4b87e78d235c37865, type: 3}
       propertyPath: _playerASprite
       value: 
       objectReference: {fileID: 21300000, guid: a2daf251bd5718b44b37eeb5ad8b6d0f, type: 3}

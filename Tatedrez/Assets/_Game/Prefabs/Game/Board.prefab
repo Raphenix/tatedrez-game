@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 810017174511072075}
   m_Layer: 0
-  m_Name: PlayerAPawnsLocator
+  m_Name: Player1PawnsLocator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -82,11 +82,8 @@ MonoBehaviour:
   - {fileID: 2677737367737885620, guid: b0326390189c01943809c48de2869384, type: 3}
   - {fileID: 2677737367737885620, guid: 1a450579bb629c84da4e7bcdea847057, type: 3}
   - {fileID: 2677737367737885620, guid: 0a045ef5acdf5f947ad962ba6fdb1117, type: 3}
-  _rookPrefab: {fileID: 2677737367737885620, guid: b0326390189c01943809c48de2869384, type: 3}
-  _knightPrefab: {fileID: 2677737367737885620, guid: 1a450579bb629c84da4e7bcdea847057, type: 3}
-  _bishopPrefab: {fileID: 2677737367737885620, guid: 0a045ef5acdf5f947ad962ba6fdb1117, type: 3}
-  _playerAPawnsLocator: {fileID: 810017174511072075}
-  _playerBPawnsLocator: {fileID: 4236605842008165134}
+  _player1PawnsLocator: {fileID: 810017174511072075}
+  _player2PawnsLocator: {fileID: 4236605842008165134}
 --- !u!1 &8096501613610821413
 GameObject:
   m_ObjectHideFlags: 0
@@ -97,7 +94,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4236605842008165134}
   m_Layer: 0
-  m_Name: PlayerBPawnsLocator
+  m_Name: Player2PawnsLocator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

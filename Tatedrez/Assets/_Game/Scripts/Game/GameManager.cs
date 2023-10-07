@@ -12,6 +12,8 @@ namespace RaphaelHerve.Tatedrez.Game
         private Board _boardPrefab;
 
         [ShowNonSerializedField]
+        private GameState _gameState;
+        [ShowNonSerializedField]
         private PlayerType _currentPlayer;
 
         public static InputController InputController { get; private set; }
@@ -20,8 +22,37 @@ namespace RaphaelHerve.Tatedrez.Game
         public static PlayerType CurrentPlayer
         {
             get => Instance._currentPlayer;
-            set => Instance._currentPlayer = value;
+            private set
+            {
+                // Can be called with same player if other player can't play
+                PlayerType from = Instance._currentPlayer;
+                Instance._currentPlayer = value;
+                OnCurrentPlayerChanged?.Invoke(from, value);
+            }
         }
+
+        public static GameState GameState
+        {
+            get => Instance._gameState;
+            private set
+            {
+                // Same state
+                if (value == Instance._gameState)
+                {
+                    return;
+                }
+
+                GameState from = Instance._gameState;
+                Instance._gameState = value;
+                OnGameStateChanged?.Invoke(from, value);
+            }
+        }
+
+        public delegate void CurrentPlayerChangedHandler(PlayerType from, PlayerType to);
+        public static event CurrentPlayerChangedHandler OnCurrentPlayerChanged;
+
+        public delegate void GameStateChangedHandler(GameState from, GameState to);
+        public static event GameStateChangedHandler OnGameStateChanged;
 
         protected override void Awake()
         {
@@ -31,6 +62,49 @@ namespace RaphaelHerve.Tatedrez.Game
 
             InputController = GetComponent<InputController>();
             Board = Instantiate(_boardPrefab, transform);
+            Board.OnPawnPlacedOnTile += CheckEndOfTurn;
         }
+
+        private void OnDestroy()
+        {
+            if (Board != null)
+            {
+                Board.OnPawnPlacedOnTile -= CheckEndOfTurn;
+            }
+        }
+
+        public void StartGame()
+        {
+            GameState = GameState.PiecePlacement;
+            CurrentPlayer = PlayerType.Player1;
+        }
+
+        private void CheckEndOfTurn(Pawn pawn)
+        {
+            if (HasPlayerWon())
+            {
+                GameState = GameState.GameOver;
+                return;
+            }
+
+            if (GameState == GameState.PiecePlacement && AreAllPawnsPlaced())
+            {
+                GameState = GameState.Dynamic;
+            }
+
+            CurrentPlayer = GameState switch
+            {
+                // Current player plays again if other can't play
+                GameState.Dynamic when !CanOtherPlayerPlay() => CurrentPlayer,
+                // Else change player
+                _ => CurrentPlayer.OtherPlayer()
+            };
+        }
+
+        public bool HasPlayerWon() => Board.HasPlayerFormedATicTacToe(CurrentPlayer);
+
+        public bool AreAllPawnsPlaced() => Board.AreAllPawnsPlaced();
+
+        public bool CanOtherPlayerPlay() => Board.CanPlayerPlay(CurrentPlayer.OtherPlayer());
     }
 }

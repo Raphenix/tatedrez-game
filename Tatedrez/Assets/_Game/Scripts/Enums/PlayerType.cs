@@ -4,7 +4,26 @@ namespace RaphaelHerve.Tatedrez.Enums
     {
         None = 0,
 
-        PlayerA = 1,
-        PlayerB = 2,
+        Player1 = 1,
+        Player2 = 2,
+    }
+
+    public static class PlayerTypeExtensions
+    {
+        public static string Name(this PlayerType playerType)
+            => playerType switch
+            {
+                PlayerType.Player1 => "Player 1",
+                PlayerType.Player2 => "Player 2",
+                _ => ""
+            };
+
+        public static PlayerType OtherPlayer(this PlayerType playerType)
+            => playerType switch
+            {
+                PlayerType.Player1 => PlayerType.Player2,
+                PlayerType.Player2 => PlayerType.Player1,
+                _ => PlayerType.None
+            };
     }
 }
