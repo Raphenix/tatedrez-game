@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace RaphaelHerve.Tatedrez.Enums
 {
     public enum PlayerType
@@ -24,6 +26,14 @@ namespace RaphaelHerve.Tatedrez.Enums
                 PlayerType.Player1 => PlayerType.Player2,
                 PlayerType.Player2 => PlayerType.Player1,
                 _ => PlayerType.None
+            };
+
+        public static Quaternion Rotation(this PlayerType playerType)
+            => playerType switch
+            {
+                PlayerType.Player1 => Quaternion.LookRotation(Vector3.forward),
+                PlayerType.Player2 => Quaternion.LookRotation(Vector3.back),
+                _ => Quaternion.identity
             };
     }
 }

@@ -23,6 +23,7 @@ namespace RaphaelHerve.Tatedrez.Game
         private Transform _pawnsParent;
 
         private Tile[,] _tiles = new Tile[COLUMN_COUNT, ROW_COUNT];
+        private List<Tile> _highlightedTiles = new();
         private Dictionary<PlayerType, List<Pawn>> _pawnsByPlayer = new()
         {
             { PlayerType.Player1, new List<Pawn>() },
@@ -63,15 +64,15 @@ namespace RaphaelHerve.Tatedrez.Game
             _pawnsParent = new GameObject("PawnsParent").transform;
             _pawnsParent.parent = transform;
 
-            CreatePawnsForPlayer(PlayerType.Player1, _player1PawnsLocator.position, Quaternion.LookRotation(Vector3.forward), _pawnsParent);
-            CreatePawnsForPlayer(PlayerType.Player2, _player2PawnsLocator.position, Quaternion.LookRotation(Vector3.back), _pawnsParent);
+            CreatePawnsForPlayer(PlayerType.Player1, _player1PawnsLocator.position, _pawnsParent);
+            CreatePawnsForPlayer(PlayerType.Player2, _player2PawnsLocator.position, _pawnsParent);
         }
 
-        private void CreatePawnsForPlayer(PlayerType playerType, Vector3 locatorPosition, Quaternion rotation, Transform parent)
+        private void CreatePawnsForPlayer(PlayerType playerType, Vector3 locatorPosition, Transform parent)
         {
             for (int i = 0; i < _pawnsPrefabs.Length; i++)
             {
-                Pawn pawn = Instantiate(_pawnsPrefabs[i], locatorPosition + rotation * Vector3.right * (i - (COLUMN_COUNT - 1) * .5f), rotation, parent);
+                Pawn pawn = Instantiate(_pawnsPrefabs[i], locatorPosition + playerType.Rotation() * Vector3.right * (i - (COLUMN_COUNT - 1) * .5f), Quaternion.identity, parent);
                 pawn.Init(playerType);
                 _pawnsByPlayer[playerType].Add(pawn);
             }
@@ -93,17 +94,151 @@ namespace RaphaelHerve.Tatedrez.Game
                 return true;
             }
 
-            return IsMoveAuthorized(pawn.PawnType, pawn.CurrentTile, tile);
+            // Allow placement if movement possible
+            return GetMoves(pawn.PawnType, pawn.Coordinates).Contains(tile);
         }
 
-        // TODO implement movement checking
-        public bool IsMoveAuthorized(PawnType pawnType, Tile from, Tile to)
+        public List<Tile> GetMoves(PawnType pawnType, Vector2Int pawnCoordinates)
+            => pawnType switch
+            {
+                PawnType.Knight => GetKnightMoves(pawnCoordinates),
+                PawnType.Rook => GetRookMoves(pawnCoordinates),
+                PawnType.Bishop => GetBishopMoves(pawnCoordinates),
+                _ => null
+            };
+
+        public List<Tile> GetKnightMoves(Vector2Int pawnCoordinates)
         {
-            return true;
+            List<Tile> moves = new();
+
+            // Right, Up, Up
+            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(1, 2), 1));
+            // Right, Right, Up
+            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(2, 1), 1));
+            // Right, Right, Down
+            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(2, -1), 1));
+            // Right, Down, Down
+            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(1, -2), 1));
+            // Left, Down, Down
+            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(-1, -2), 1));
+            // Left, Left, Down
+            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(-2, -1), 1));
+            // Left, Left, Up
+            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(-2, 1), 1));
+            // Left, Up, Up
+            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(-1, 2), 1));
+
+            return moves;
         }
 
-        public void PlacePawnOnTile(Pawn pawn, Tile tile)
+        public List<Tile> GetRookMoves(Vector2Int pawnCoordinates)
         {
+            List<Tile> moves = new();
+
+            // Left
+            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(-1, 0)));
+            // Right
+            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(1, 0)));
+            // Down
+            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(0, -1)));
+            // Up
+            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(0, 1)));
+
+            return moves;
+        }
+
+        public List<Tile> GetBishopMoves(Vector2Int pawnCoordinates)
+        {
+            List<Tile> moves = new();
+
+            // Right & Up
+            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(1, 1)));
+            // Right & Down
+            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(1, -1)));
+            // Left & Down
+            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(-1, -1)));
+            // Left & Up
+            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(-1, 1)));
+
+            return moves;
+        }
+
+        public List<Tile> GetTilesInDirection(Vector2Int coordinates, Vector2Int direction, int maxCheckCount = int.MaxValue)
+        {
+            List<Tile> tiles = new();
+
+            if (direction == Vector2Int.zero)
+            {
+                Debug.LogError($"Direction can't be {Vector2Int.zero}");
+                return tiles;
+            }
+
+            int checkCount = 0;
+
+            while (checkCount < maxCheckCount)
+            {
+                coordinates += direction;
+
+                if (!TryGetFreeTileAtCoordinates(coordinates, out Tile tile))
+                {
+                    break;
+                }
+
+                tiles.Add(tile);
+
+                checkCount++;
+            }
+
+            return tiles;
+        }
+
+        public bool TryGetFreeTileAtCoordinates(Vector2Int coordinates, out Tile tile)
+        {
+            // Out of board
+            if (coordinates.x is < 0 or >= COLUMN_COUNT || coordinates.y is < 0 or >= ROW_COUNT)
+            {
+                tile = null;
+                return false;
+            }
+
+            tile = _tiles[coordinates.x, coordinates.y];
+            return !tile.HasPawnOn;
+        }
+
+        public void ShowTilesHighlight(List<Tile> tiles)
+        {
+            foreach (Tile tile in tiles)
+            {
+                tile.ShowHighlight();
+            }
+
+            _highlightedTiles.AddRange(tiles);
+        }
+
+        public void HideTilesHighlights()
+        {
+            foreach (Tile tile in _highlightedTiles)
+            {
+                tile.HideHighlight();
+            }
+
+            _highlightedTiles.Clear();
+        }
+
+        public bool TryPlacePawnOnTile(Pawn pawn, Tile tile)
+        {
+            // Tile already has a pawn on
+            if (tile.HasPawnOn)
+            {
+                return false;
+            }
+
+            // Making an invalid move
+            if (GameManager.GameState == GameState.Dynamic && !GetMoves(pawn.PawnType, pawn.Coordinates).Contains(tile))
+            {
+                return false;
+            }
+
             if (pawn.IsPlacedOnTile)
             {
                 pawn.CurrentTile.RemovePawn(pawn);
@@ -113,6 +248,7 @@ namespace RaphaelHerve.Tatedrez.Game
             pawn.PlaceOnTile(tile);
 
             OnPawnPlacedOnTile?.Invoke(pawn);
+            return true;
         }
 
         public bool HasPlayerFormedATicTacToe(PlayerType playerType)
@@ -134,7 +270,7 @@ namespace RaphaelHerve.Tatedrez.Game
                     continue;
                 }
 
-                Vector2 tmpDirection = playerPawns[0].Coordinates - playerPawns[i].Coordinates;
+                Vector2 tmpDirection = (Vector2)(playerPawns[0].Coordinates - playerPawns[i].Coordinates);
                 tmpDirection.Normalize();
 
                 // First direction calculated, store it for next iterations
@@ -144,10 +280,10 @@ namespace RaphaelHerve.Tatedrez.Game
                     continue;
                 }
 
-                float dot = Vector2.Dot(direction.Value, tmpDirection);
+                float cross = direction.Value.x * tmpDirection.y - direction.Value.y * tmpDirection.x;
 
                 // The resulting vectors are not aligned, meaning pawns are not aligned either
-                if (dot != 1 && dot != -1)
+                if (cross != 0)
                 {
                     return false;
                 }
@@ -172,10 +308,17 @@ namespace RaphaelHerve.Tatedrez.Game
             return true;
         }
 
-        // TODO check if player can make a move with any of its pawns
         public bool CanPlayerPlay(PlayerType playerType)
         {
-            return true;
+            foreach (Pawn pawn in _pawnsByPlayer[playerType])
+            {
+                if (GetMoves(pawn.PawnType, pawn.Coordinates).Count > 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

@@ -5,6 +5,8 @@ namespace RaphaelHerve.Tatedrez.Game
 {
     public class Tile : MonoBehaviour
     {
+        [SerializeField]
+        private GameObject _highlight;
         [ShowNonSerializedField]
         private Vector2Int _coordinates;
         [ShowNonSerializedField]
@@ -16,6 +18,7 @@ namespace RaphaelHerve.Tatedrez.Game
         public void Init(int x, int y)
         {
             _coordinates = new Vector2Int(x, y);
+            HideHighlight();
         }
 
         public void PlacePawnOn(Pawn pawn)
@@ -44,6 +47,16 @@ namespace RaphaelHerve.Tatedrez.Game
             }
 
             _pawn = null;
+        }
+
+        public void ShowHighlight()
+        {
+            _highlight?.SetActive(true);
+        }
+
+        public void HideHighlight()
+        {
+            _highlight?.SetActive(false);
         }
     }
 }

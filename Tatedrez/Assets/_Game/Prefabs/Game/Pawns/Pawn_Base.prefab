@@ -247,9 +247,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _pawnType: 0
+  _visual: {fileID: 1680523790933136363}
   _spriteRenderer: {fileID: 4878283941751996830}
-  _playerASprite: {fileID: 0}
-  _playerBSprite: {fileID: 0}
+  _player1Sprite: {fileID: 0}
+  _player2Sprite: {fileID: 0}
 --- !u!65 &1517161803416257478
 BoxCollider:
   m_ObjectHideFlags: 0

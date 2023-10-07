@@ -1,5 +1,6 @@
 using NaughtyAttributes;
 using RaphaelHerve.Tatedrez.Enums;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace RaphaelHerve.Tatedrez.Game
@@ -18,6 +19,7 @@ namespace RaphaelHerve.Tatedrez.Game
         private Camera _mainCamera;
         private Pawn _selectedPawn;
         private Tile _selectedTile;
+        private List<Tile> _possibleMoves = new();
 
         public InputMode InputMode
         {
@@ -94,6 +96,13 @@ namespace RaphaelHerve.Tatedrez.Game
             }
 
             _selectedPawn = pawn;
+
+            // When selecting a pawn, highlight its possible moves
+            if (InputMode == InputMode.Dynamic)
+            {
+                _possibleMoves = GameManager.Board.GetMoves(pawn.PawnType, pawn.Coordinates);
+                GameManager.Board.ShowTilesHighlight(_possibleMoves);
+            }
         }
 
         private void HandleInputDrag()
@@ -104,8 +113,7 @@ namespace RaphaelHerve.Tatedrez.Game
                 return;
             }
 
-            // Raycasting on a tile, snap to it
-            // TODO check if movement possible
+            // Raycasting on a valid tile, snap to it
             if (TryGetTileOnRaycast(out Tile tile) && GameManager.Board.CanPlacePawnOnTile(_selectedPawn, tile))
             {
                 _selectedTile = tile;
@@ -131,14 +139,14 @@ namespace RaphaelHerve.Tatedrez.Game
                 return;
             }
 
-            if (_selectedTile != null)
+            // Invalid move, move pawn back to its previous position
+            if (_selectedTile == null || !GameManager.Board.TryPlacePawnOnTile(_selectedPawn, _selectedTile))
             {
-                GameManager.Board.PlacePawnOnTile(_selectedPawn, _selectedTile);
+                _selectedPawn.MoveTo(_selectedPawn.PreviousPosition);
             }
-            else
-            {
-                _selectedPawn.MoveTo(_selectedPawn.CurrentTile.transform.position);
-            }
+
+            _possibleMoves.Clear();
+            GameManager.Board.HideTilesHighlights();
 
             _selectedPawn = null;
         }
