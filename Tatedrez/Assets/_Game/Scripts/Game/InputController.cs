@@ -95,6 +95,7 @@ namespace RaphaelHerve.Tatedrez.Game
             }
 
             _selectedPawn = pawn;
+            _selectedPawn.StartDragging();
 
             // When selecting a pawn, highlight its possible moves
             if (InputMode == InputMode.Dynamic)
@@ -147,6 +148,7 @@ namespace RaphaelHerve.Tatedrez.Game
             _possibleMoves.Clear();
             GameManager.Board.HideTilesHighlights();
 
+            _selectedPawn.StopDragging();
             _selectedPawn = null;
         }
 

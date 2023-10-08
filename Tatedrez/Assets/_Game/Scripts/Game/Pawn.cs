@@ -11,6 +11,7 @@ namespace RaphaelHerve.Tatedrez.Game
         private PawnType _pawnType;
         [SerializeField]
         private Transform _visual;
+
         [Header("Base renderer based on player")]
         [SerializeField]
         private Renderer _base;
@@ -18,6 +19,7 @@ namespace RaphaelHerve.Tatedrez.Game
         private Material _player1BaseMaterial;
         [SerializeField]
         private Material _player2BaseMaterial;
+
         [Header("Sprite based on pawn type")]
         [SerializeField]
         private SpriteRenderer _spriteRenderer;
@@ -25,6 +27,13 @@ namespace RaphaelHerve.Tatedrez.Game
         private Sprite _player1Sprite;
         [SerializeField]
         private Sprite _player2Sprite;
+
+        [Header("Movement parameters")]
+        [SerializeField]
+        private float _visualBoardHeightOffset = -.1f;
+        [SerializeField]
+        private float _movingHeight = .1f;
+
         [ShowNonSerializedField]
         private PlayerType _owner;
         [ShowNonSerializedField]
@@ -35,7 +44,10 @@ namespace RaphaelHerve.Tatedrez.Game
         private Vector3 _currentMoveVelocity;
         private Vector3 _startPosition;
 
+        private bool _isBeingDragged;
         private Tween _visualRotationTween;
+
+        private float TargetVisualHeight => _isBeingDragged ? _movingHeight : IsPlacedOnTile ? 0f : _visualBoardHeightOffset;
 
         public PawnType PawnType => _pawnType;
         public PlayerType Owner => _owner;
@@ -47,6 +59,9 @@ namespace RaphaelHerve.Tatedrez.Game
         private void Awake()
         {
             _startPosition = _targetPosition = transform.position;
+
+            _visual.localPosition = new Vector3(0f, _visualBoardHeightOffset, 0f);
+
             GameManager.OnCurrentPlayerChanged += GameManager_OnCurrentPlayerChanged;
         }
 
@@ -92,9 +107,25 @@ namespace RaphaelHerve.Tatedrez.Game
             MoveTo(PreviousPosition);
         }
 
-        private void Update() => ProcessSmoothDamping();
+        private void Update()
+        {
+            ProcessSmoothDamping();
+            ProcessVisualHeight();
+        }
 
-        private void ProcessSmoothDamping() => transform.position = Vector3.SmoothDamp(transform.position, _targetPosition, ref _currentMoveVelocity, .05f/*, 10f, Time.deltaTime*/);
+        private void ProcessSmoothDamping()
+        {
+            float rotationY = _visual.localRotation.eulerAngles.y;
+            _visual.up = _targetPosition - transform.position + Vector3.up * 2f;
+            _visual.localRotation = Quaternion.Euler(_visual.localRotation.eulerAngles.x, rotationY, _visual.localRotation.eulerAngles.z);
+            transform.position = Vector3.SmoothDamp(transform.position, _targetPosition, ref _currentMoveVelocity, .075f);
+        }
+
+        private void ProcessVisualHeight() => _visual.localPosition = new Vector3(0f, Mathf.Lerp(_visual.localPosition.y, TargetVisualHeight, Time.deltaTime * 10f), 0f);
+
+        public void StartDragging() => _isBeingDragged = true;
+
+        public void StopDragging() => _isBeingDragged = false;
 
         public void MoveTo(Vector3 position) => _targetPosition = position;
 

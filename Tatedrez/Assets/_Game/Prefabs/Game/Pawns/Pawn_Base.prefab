@@ -254,6 +254,8 @@ MonoBehaviour:
   _spriteRenderer: {fileID: 4878283941751996830}
   _player1Sprite: {fileID: 0}
   _player2Sprite: {fileID: 0}
+  _visualBoardHeightOffset: -0.1
+  _movingHeight: 0.1
 --- !u!65 &1517161803416257478
 BoxCollider:
   m_ObjectHideFlags: 0
