@@ -1,5 +1,6 @@
 using NaughtyAttributes;
 using RaphaelHerve.Tatedrez.Enums;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -20,6 +21,10 @@ namespace RaphaelHerve.Tatedrez.Game
         private Piece _selectedPiece;
         private Tile _selectedTile;
         private List<Tile> _possibleMoves = new();
+
+        public static event Action<Piece> OnStartMovingPiece;
+        public static event Action<Piece> OnCancelledMove;
+        public static event Action<Piece> OnInvalidMove;
 
         public InputMode InputMode
         {
@@ -96,6 +101,7 @@ namespace RaphaelHerve.Tatedrez.Game
 
             _selectedPiece = piece;
             _selectedPiece.StartDragging();
+            OnStartMovingPiece(piece);
 
             // When selecting a piece, highlight its possible moves
             if (InputMode == InputMode.Dynamic)
@@ -142,6 +148,15 @@ namespace RaphaelHerve.Tatedrez.Game
             // Invalid move, move piece back to its previous position
             if (_selectedTile == null || !GameManager.Board.TryPlacePieceOnTile(_selectedPiece, _selectedTile))
             {
+                if (_selectedTile == null)
+                {
+                    OnCancelledMove?.Invoke(_selectedPiece);
+                }
+                else
+                {
+                    OnInvalidMove?.Invoke(_selectedPiece);
+                }
+
                 _selectedPiece.MoveTo(_selectedPiece.PreviousPosition);
             }
 
