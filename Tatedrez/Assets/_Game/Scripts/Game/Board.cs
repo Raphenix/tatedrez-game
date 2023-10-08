@@ -59,6 +59,8 @@ namespace RaphaelHerve.Tatedrez.Game
             }
         }
 
+        private Vector3 GetTilePosition(int x, int y) => new Vector3(x - (COLUMN_COUNT - 1) * .5f, 0f, y - (ROW_COUNT - 1) * .5f);
+
         private void CreatePawns()
         {
             _pawnsParent = new GameObject("PawnsParent").transform;
@@ -78,7 +80,22 @@ namespace RaphaelHerve.Tatedrez.Game
             }
         }
 
-        private Vector3 GetTilePosition(int x, int y) => new Vector3(x - (COLUMN_COUNT - 1) * .5f, 0f, y - (ROW_COUNT - 1) * .5f);
+        public void Reset()
+        {
+            foreach (List<Pawn> pawns in _pawnsByPlayer.Values)
+            {
+                foreach (Pawn pawn in pawns)
+                {
+                    if (!pawn.IsPlacedOnTile)
+                    {
+                        continue;
+                    }
+
+                    pawn.CurrentTile.RemovePawn(pawn);
+                    pawn.Reset();
+                }
+            }
+        }
 
         public bool CanPlacePawnOnTile(Pawn pawn, Tile tile)
         {

@@ -10,20 +10,27 @@ namespace RaphaelHerve.Tatedrez.UI
         {
             base.Awake();
 
-            GameManager.OnGameStateChanged += GameStateChanged;
-
             HomeScreen.Init();
             GameScreen.Init();
             GameOverScreen.Init();
 
-            HomeScreen.Show();
-            GameScreen.Hide();
-            GameOverScreen.Hide();
+            Reset();
+
+            GameManager.OnGameReset += Reset;
+            GameManager.OnGameStateChanged += GameStateChanged;
         }
 
         private void OnDestroy()
         {
+            GameManager.OnGameReset -= Reset;
             GameManager.OnGameStateChanged -= GameStateChanged;
+        }
+
+        public void Reset()
+        {
+            HomeScreen.Show();
+            GameScreen.Hide();
+            GameOverScreen.Hide();
         }
 
         private void GameStateChanged(GameState from, GameState to)

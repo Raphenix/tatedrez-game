@@ -16,7 +16,7 @@ namespace RaphaelHerve.Tatedrez.Game
         [SerializeField]
         private LayerMask _pawnLayerMask;
 
-        private Camera _mainCamera;
+        private UnityEngine.Camera _mainCamera;
         private Pawn _selectedPawn;
         private Tile _selectedTile;
         private List<Tile> _possibleMoves = new();
@@ -29,7 +29,7 @@ namespace RaphaelHerve.Tatedrez.Game
 
         private void Awake()
         {
-            _mainCamera = Camera.main;
+            _mainCamera = UnityEngine.Camera.main;
 
             GameManager.OnGameStateChanged += GameStateChanged;
         }
@@ -79,7 +79,6 @@ namespace RaphaelHerve.Tatedrez.Game
             // All inputs start with selecting a pawn
             if (!TryGetPawnOnRaycast(out Pawn pawn))
             {
-                Debug.Log("No pawn found");
                 return;
             }
 

@@ -11,6 +11,14 @@ namespace RaphaelHerve.Tatedrez.Game
         private PawnType _pawnType;
         [SerializeField]
         private Transform _visual;
+        [Header("Base renderer based on player")]
+        [SerializeField]
+        private Renderer _base;
+        [SerializeField]
+        private Material _player1BaseMaterial;
+        [SerializeField]
+        private Material _player2BaseMaterial;
+        [Header("Sprite based on pawn type")]
         [SerializeField]
         private SpriteRenderer _spriteRenderer;
         [SerializeField]
@@ -66,8 +74,22 @@ namespace RaphaelHerve.Tatedrez.Game
             {
                 PlayerType.Player1 => _player1Sprite,
                 PlayerType.Player2 => _player2Sprite,
-                _ => null,
+                _ => null
             };
+
+            _base.sharedMaterial = owner switch
+            {
+                PlayerType.Player1 => _player1BaseMaterial,
+                PlayerType.Player2 => _player2BaseMaterial,
+                _ => null
+            };
+        }
+
+        public void Reset()
+        {
+            RotateVisual(_owner.Rotation());
+            _currentTile = null;
+            MoveTo(PreviousPosition);
         }
 
         private void Update() => ProcessSmoothDamping();
@@ -85,7 +107,7 @@ namespace RaphaelHerve.Tatedrez.Game
         private void RotateVisual(Quaternion targetRotation)
         {
             _visualRotationTween?.Kill();
-            _visualRotationTween = _visual.DORotateQuaternion(targetRotation, .5f);
+            _visualRotationTween = _visual.DORotateQuaternion(targetRotation, .25f);
         }
     }
 }

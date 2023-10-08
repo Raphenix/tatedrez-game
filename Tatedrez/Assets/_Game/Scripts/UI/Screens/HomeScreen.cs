@@ -16,7 +16,7 @@ namespace RaphaelHerve.Tatedrez.UI
 
         private void OnDestroy()
         {
-            _startButton.onClick.RemoveListener(GameManager.Instance.StartGame);
+            _startButton.onClick.RemoveAllListeners();
         }
     }
 

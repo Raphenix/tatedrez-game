@@ -1,6 +1,7 @@
 using NaughtyAttributes;
 using RaphaelHerve.Tatedrez.DesignPatterns;
 using RaphaelHerve.Tatedrez.Enums;
+using System;
 using UnityEngine;
 
 namespace RaphaelHerve.Tatedrez.Game
@@ -54,6 +55,8 @@ namespace RaphaelHerve.Tatedrez.Game
         public delegate void GameStateChangedHandler(GameState from, GameState to);
         public static event GameStateChangedHandler OnGameStateChanged;
 
+        public static event Action OnGameReset;
+
         protected override void Awake()
         {
             base.Awake();
@@ -76,7 +79,7 @@ namespace RaphaelHerve.Tatedrez.Game
         public void StartGame()
         {
             GameState = GameState.PiecePlacement;
-            CurrentPlayer = PlayerType.Player1;
+            CurrentPlayer = UnityEngine.Random.value < .5f ? PlayerType.Player1 : PlayerType.Player2;
         }
 
         private void CheckEndOfTurn(Pawn pawn)
@@ -106,5 +109,13 @@ namespace RaphaelHerve.Tatedrez.Game
         public bool AreAllPawnsPlaced() => Board.AreAllPawnsPlaced();
 
         public bool CanOtherPlayerPlay() => Board.CanPlayerPlay(CurrentPlayer.OtherPlayer());
+
+        public void ReplayGame()
+        {
+            Board.Reset();
+            CurrentPlayer = PlayerType.None;
+            GameState = GameState.None;
+            OnGameReset?.Invoke();
+        }
     }
 }
