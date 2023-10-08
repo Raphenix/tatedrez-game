@@ -1,11 +1,16 @@
+using DG.Tweening;
 using RaphaelHerve.Tatedrez.DesignPatterns;
 using RaphaelHerve.Tatedrez.Enums;
 using RaphaelHerve.Tatedrez.Game;
+using UnityEngine;
 
 namespace RaphaelHerve.Tatedrez.UI
 {
     public partial class UIManager : Singleton<UIManager>
     {
+        [SerializeField]
+        private float _screenTransitionDuration = .5f;
+
         protected override void Awake()
         {
             base.Awake();
@@ -16,21 +21,19 @@ namespace RaphaelHerve.Tatedrez.UI
 
             Reset();
 
-            GameManager.OnGameReset += Reset;
             GameManager.OnGameStateChanged += GameStateChanged;
         }
 
         private void OnDestroy()
         {
-            GameManager.OnGameReset -= Reset;
             GameManager.OnGameStateChanged -= GameStateChanged;
         }
 
         public void Reset()
         {
-            HomeScreen.Show();
-            GameScreen.Hide();
-            GameOverScreen.Hide();
+            HomeScreen.Show(0f);
+            GameScreen.Hide(0f);
+            GameOverScreen.Hide(0f);
         }
 
         private void GameStateChanged(GameState from, GameState to)
@@ -38,12 +41,17 @@ namespace RaphaelHerve.Tatedrez.UI
             switch (to)
             {
                 case GameState.PiecePlacement:
-                    HomeScreen.Hide();
-                    GameScreen.Show();
+                    HomeScreen.Hide(_screenTransitionDuration);
+                    GameScreen.Show(_screenTransitionDuration);
                     break;
                 case GameState.GameOver:
-                    GameScreen.Hide();
-                    GameOverScreen.Show();
+                    GameScreen.Hide(_screenTransitionDuration);
+                    GameOverScreen.Show(_screenTransitionDuration);
+                    break;
+                case GameState.None:
+                    GameOverScreen.Hide(_screenTransitionDuration);
+                    DOVirtual.DelayedCall(_screenTransitionDuration,
+                        () => HomeScreen.Show(_screenTransitionDuration));
                     break;
             }
         }

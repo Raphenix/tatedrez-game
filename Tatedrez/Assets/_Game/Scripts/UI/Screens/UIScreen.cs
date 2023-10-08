@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 
 namespace RaphaelHerve.Tatedrez.UI
@@ -6,14 +7,18 @@ namespace RaphaelHerve.Tatedrez.UI
     {
         public virtual void Init() { }
 
-        public virtual void Show()
+        public virtual void OnDestroy() { }
+
+        public virtual void Reset() { }
+
+        public virtual void Show(float duration)
         {
             gameObject.SetActive(true);
         }
 
-        public virtual void Hide()
+        public virtual void Hide(float duration)
         {
-            gameObject.SetActive(false);
+            DOVirtual.DelayedCall(duration, () => gameObject.SetActive(false));
         }
     }
 }

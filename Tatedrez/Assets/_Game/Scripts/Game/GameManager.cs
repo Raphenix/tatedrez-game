@@ -55,8 +55,6 @@ namespace RaphaelHerve.Tatedrez.Game
         public delegate void GameStateChangedHandler(GameState from, GameState to);
         public static event GameStateChangedHandler OnGameStateChanged;
 
-        public static event Action OnGameReset;
-
         protected override void Awake()
         {
             base.Awake();
@@ -115,7 +113,6 @@ namespace RaphaelHerve.Tatedrez.Game
             Board.Reset();
             CurrentPlayer = PlayerType.None;
             GameState = GameState.None;
-            OnGameReset?.Invoke();
         }
     }
 }
