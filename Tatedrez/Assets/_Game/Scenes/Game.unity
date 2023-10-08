@@ -283,7 +283,7 @@ MonoBehaviour:
   _tileLayerMask:
     serializedVersion: 2
     m_Bits: 64
-  _pawnLayerMask:
+  _pieceLayerMask:
     serializedVersion: 2
     m_Bits: 128
 --- !u!1 &561569787

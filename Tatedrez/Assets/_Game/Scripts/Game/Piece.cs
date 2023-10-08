@@ -5,10 +5,10 @@ using UnityEngine;
 
 namespace RaphaelHerve.Tatedrez.Game
 {
-    public class Pawn : MonoBehaviour
+    public class Piece : MonoBehaviour
     {
         [SerializeField]
-        private PawnType _pawnType;
+        private PieceType _pieceType;
         [SerializeField]
         private Transform _visual;
 
@@ -20,7 +20,7 @@ namespace RaphaelHerve.Tatedrez.Game
         [SerializeField]
         private Material _player2BaseMaterial;
 
-        [Header("Sprite based on pawn type")]
+        [Header("Sprite based on piece type")]
         [SerializeField]
         private SpriteRenderer _spriteRenderer;
         [SerializeField]
@@ -49,7 +49,7 @@ namespace RaphaelHerve.Tatedrez.Game
 
         private float TargetVisualHeight => _isBeingDragged ? _movingHeight : IsPlacedOnTile ? 0f : _visualBoardHeightOffset;
 
-        public PawnType PawnType => _pawnType;
+        public PieceType PieceType => _pieceType;
         public PlayerType Owner => _owner;
         public Tile CurrentTile => _currentTile;
         public bool IsPlacedOnTile => _currentTile != null;
@@ -77,7 +77,7 @@ namespace RaphaelHerve.Tatedrez.Game
         {
             if (owner == PlayerType.None)
             {
-                Debug.LogError($"Can't set Pawn's Owner to {PlayerType.None}");
+                Debug.LogError($"Can't set Piece's Owner to {PlayerType.None}");
                 return;
             }
 

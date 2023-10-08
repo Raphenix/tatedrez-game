@@ -65,14 +65,14 @@ namespace RaphaelHerve.Tatedrez.Game
 
             InputController = GetComponent<InputController>();
             Board = Instantiate(_boardPrefab, transform);
-            Board.OnPawnPlacedOnTile += CheckEndOfTurn;
+            Board.OnPiecePlacedOnTile += CheckEndOfTurn;
         }
 
         private void OnDestroy()
         {
             if (Board != null)
             {
-                Board.OnPawnPlacedOnTile -= CheckEndOfTurn;
+                Board.OnPiecePlacedOnTile -= CheckEndOfTurn;
             }
         }
 
@@ -82,7 +82,7 @@ namespace RaphaelHerve.Tatedrez.Game
             CurrentPlayer = UnityEngine.Random.value < .5f ? PlayerType.Player1 : PlayerType.Player2;
         }
 
-        private void CheckEndOfTurn(Pawn pawn)
+        private void CheckEndOfTurn(Piece piece)
         {
             if (HasPlayerWon())
             {
@@ -90,7 +90,7 @@ namespace RaphaelHerve.Tatedrez.Game
                 return;
             }
 
-            if (GameState == GameState.PiecePlacement && AreAllPawnsPlaced())
+            if (GameState == GameState.PiecePlacement && AreAllPiecesPlaced())
             {
                 GameState = GameState.Dynamic;
             }
@@ -106,7 +106,7 @@ namespace RaphaelHerve.Tatedrez.Game
 
         public bool HasPlayerWon() => Board.HasPlayerFormedATicTacToe(CurrentPlayer);
 
-        public bool AreAllPawnsPlaced() => Board.AreAllPawnsPlaced();
+        public bool AreAllPiecesPlaced() => Board.AreAllPiecesPlaced();
 
         public bool CanOtherPlayerPlay() => Board.CanPlayerPlay(CurrentPlayer.OtherPlayer());
 

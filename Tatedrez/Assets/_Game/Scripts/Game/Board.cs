@@ -11,34 +11,34 @@ namespace RaphaelHerve.Tatedrez.Game
         private Tile _tilePrefab;
 
         [SerializeField]
-        private Pawn[] _pawnsPrefabs;
+        private Piece[] _piecesPrefabs;
 
         [Header("Start locators")]
         [SerializeField]
-        private Transform _player1PawnsLocator;
+        private Transform _player1PiecesLocator;
         [SerializeField]
-        private Transform _player2PawnsLocator;
+        private Transform _player2PiecesLocator;
 
         private Transform _tilesParent;
-        private Transform _pawnsParent;
+        private Transform _piecesParent;
 
         private Tile[,] _tiles = new Tile[COLUMN_COUNT, ROW_COUNT];
         private List<Tile> _highlightedTiles = new();
-        private Dictionary<PlayerType, List<Pawn>> _pawnsByPlayer = new()
+        private Dictionary<PlayerType, List<Piece>> _piecesByPlayer = new()
         {
-            { PlayerType.Player1, new List<Pawn>() },
-            { PlayerType.Player2, new List<Pawn>() },
+            { PlayerType.Player1, new List<Piece>() },
+            { PlayerType.Player2, new List<Piece>() },
         };
 
         public const int COLUMN_COUNT = 3;
         public const int ROW_COUNT = 3;
 
-        public event Action<Pawn> OnPawnPlacedOnTile;
+        public event Action<Piece> OnPiecePlacedOnTile;
 
         private void Awake()
         {
             CreateTiles();
-            CreatePawns();
+            CreatePieces();
         }
 
         private void CreateTiles()
@@ -61,121 +61,121 @@ namespace RaphaelHerve.Tatedrez.Game
 
         private Vector3 GetTilePosition(int x, int y) => new Vector3(x - (COLUMN_COUNT - 1) * .5f, 0f, y - (ROW_COUNT - 1) * .5f);
 
-        private void CreatePawns()
+        private void CreatePieces()
         {
-            _pawnsParent = new GameObject("PawnsParent").transform;
-            _pawnsParent.parent = transform;
+            _piecesParent = new GameObject("PiecesParent").transform;
+            _piecesParent.parent = transform;
 
-            CreatePawnsForPlayer(PlayerType.Player1, _player1PawnsLocator.position, _pawnsParent);
-            CreatePawnsForPlayer(PlayerType.Player2, _player2PawnsLocator.position, _pawnsParent);
+            CreatePiecesForPlayer(PlayerType.Player1, _player1PiecesLocator.position, _piecesParent);
+            CreatePiecesForPlayer(PlayerType.Player2, _player2PiecesLocator.position, _piecesParent);
         }
 
-        private void CreatePawnsForPlayer(PlayerType playerType, Vector3 locatorPosition, Transform parent)
+        private void CreatePiecesForPlayer(PlayerType playerType, Vector3 locatorPosition, Transform parent)
         {
-            for (int i = 0; i < _pawnsPrefabs.Length; i++)
+            for (int i = 0; i < _piecesPrefabs.Length; i++)
             {
-                Pawn pawn = Instantiate(_pawnsPrefabs[i], locatorPosition + playerType.Rotation() * Vector3.right * (i - (COLUMN_COUNT - 1) * .5f), Quaternion.identity, parent);
-                pawn.Init(playerType);
-                _pawnsByPlayer[playerType].Add(pawn);
+                Piece piece = Instantiate(_piecesPrefabs[i], locatorPosition + playerType.Rotation() * Vector3.right * (i - (COLUMN_COUNT - 1) * .5f), Quaternion.identity, parent);
+                piece.Init(playerType);
+                _piecesByPlayer[playerType].Add(piece);
             }
         }
 
         public void Reset()
         {
-            foreach (List<Pawn> pawns in _pawnsByPlayer.Values)
+            foreach (List<Piece> pieces in _piecesByPlayer.Values)
             {
-                foreach (Pawn pawn in pawns)
+                foreach (Piece piece in pieces)
                 {
-                    if (!pawn.IsPlacedOnTile)
+                    if (!piece.IsPlacedOnTile)
                     {
                         continue;
                     }
 
-                    pawn.CurrentTile.RemovePawn(pawn);
-                    pawn.Reset();
+                    piece.CurrentTile.RemovePiece(piece);
+                    piece.Reset();
                 }
             }
         }
 
-        public bool CanPlacePawnOnTile(Pawn pawn, Tile tile)
+        public bool CanPlacePieceOnTile(Piece piece, Tile tile)
         {
-            // Tile already has a pawn on
-            if (tile.HasPawnOn)
+            // Tile already has a piece on
+            if (tile.HasPieceOn)
             {
                 return false;
             }
 
             // First placement on board, no move check needed
-            if (!pawn.IsPlacedOnTile)
+            if (!piece.IsPlacedOnTile)
             {
                 return true;
             }
 
             // Allow placement if movement possible
-            return GetMoves(pawn.PawnType, pawn.Coordinates).Contains(tile);
+            return GetMoves(piece.PieceType, piece.Coordinates).Contains(tile);
         }
 
-        public List<Tile> GetMoves(PawnType pawnType, Vector2Int pawnCoordinates)
-            => pawnType switch
+        public List<Tile> GetMoves(PieceType pieceType, Vector2Int pieceCoordinates)
+            => pieceType switch
             {
-                PawnType.Knight => GetKnightMoves(pawnCoordinates),
-                PawnType.Rook => GetRookMoves(pawnCoordinates),
-                PawnType.Bishop => GetBishopMoves(pawnCoordinates),
+                PieceType.Knight => GetKnightMoves(pieceCoordinates),
+                PieceType.Rook => GetRookMoves(pieceCoordinates),
+                PieceType.Bishop => GetBishopMoves(pieceCoordinates),
                 _ => null
             };
 
-        public List<Tile> GetKnightMoves(Vector2Int pawnCoordinates)
+        public List<Tile> GetKnightMoves(Vector2Int pieceCoordinates)
         {
             List<Tile> moves = new();
 
             // Right, Up, Up
-            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(1, 2), 1));
+            moves.AddRange(GetTilesInDirection(pieceCoordinates, new Vector2Int(1, 2), 1));
             // Right, Right, Up
-            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(2, 1), 1));
+            moves.AddRange(GetTilesInDirection(pieceCoordinates, new Vector2Int(2, 1), 1));
             // Right, Right, Down
-            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(2, -1), 1));
+            moves.AddRange(GetTilesInDirection(pieceCoordinates, new Vector2Int(2, -1), 1));
             // Right, Down, Down
-            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(1, -2), 1));
+            moves.AddRange(GetTilesInDirection(pieceCoordinates, new Vector2Int(1, -2), 1));
             // Left, Down, Down
-            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(-1, -2), 1));
+            moves.AddRange(GetTilesInDirection(pieceCoordinates, new Vector2Int(-1, -2), 1));
             // Left, Left, Down
-            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(-2, -1), 1));
+            moves.AddRange(GetTilesInDirection(pieceCoordinates, new Vector2Int(-2, -1), 1));
             // Left, Left, Up
-            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(-2, 1), 1));
+            moves.AddRange(GetTilesInDirection(pieceCoordinates, new Vector2Int(-2, 1), 1));
             // Left, Up, Up
-            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(-1, 2), 1));
+            moves.AddRange(GetTilesInDirection(pieceCoordinates, new Vector2Int(-1, 2), 1));
 
             return moves;
         }
 
-        public List<Tile> GetRookMoves(Vector2Int pawnCoordinates)
+        public List<Tile> GetRookMoves(Vector2Int pieceCoordinates)
         {
             List<Tile> moves = new();
 
             // Left
-            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(-1, 0)));
+            moves.AddRange(GetTilesInDirection(pieceCoordinates, new Vector2Int(-1, 0)));
             // Right
-            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(1, 0)));
+            moves.AddRange(GetTilesInDirection(pieceCoordinates, new Vector2Int(1, 0)));
             // Down
-            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(0, -1)));
+            moves.AddRange(GetTilesInDirection(pieceCoordinates, new Vector2Int(0, -1)));
             // Up
-            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(0, 1)));
+            moves.AddRange(GetTilesInDirection(pieceCoordinates, new Vector2Int(0, 1)));
 
             return moves;
         }
 
-        public List<Tile> GetBishopMoves(Vector2Int pawnCoordinates)
+        public List<Tile> GetBishopMoves(Vector2Int pieceCoordinates)
         {
             List<Tile> moves = new();
 
             // Right & Up
-            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(1, 1)));
+            moves.AddRange(GetTilesInDirection(pieceCoordinates, new Vector2Int(1, 1)));
             // Right & Down
-            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(1, -1)));
+            moves.AddRange(GetTilesInDirection(pieceCoordinates, new Vector2Int(1, -1)));
             // Left & Down
-            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(-1, -1)));
+            moves.AddRange(GetTilesInDirection(pieceCoordinates, new Vector2Int(-1, -1)));
             // Left & Up
-            moves.AddRange(GetTilesInDirection(pawnCoordinates, new Vector2Int(-1, 1)));
+            moves.AddRange(GetTilesInDirection(pieceCoordinates, new Vector2Int(-1, 1)));
 
             return moves;
         }
@@ -219,7 +219,7 @@ namespace RaphaelHerve.Tatedrez.Game
             }
 
             tile = _tiles[coordinates.x, coordinates.y];
-            return !tile.HasPawnOn;
+            return !tile.HasPieceOn;
         }
 
         public void ShowTilesHighlight(List<Tile> tiles)
@@ -242,41 +242,41 @@ namespace RaphaelHerve.Tatedrez.Game
             _highlightedTiles.Clear();
         }
 
-        public bool TryPlacePawnOnTile(Pawn pawn, Tile tile)
+        public bool TryPlacePieceOnTile(Piece piece, Tile tile)
         {
-            // Tile already has a pawn on
-            if (tile.HasPawnOn)
+            // Tile already has a piece on
+            if (tile.HasPieceOn)
             {
                 return false;
             }
 
             // Making an invalid move
-            if (GameManager.GameState == GameState.Dynamic && !GetMoves(pawn.PawnType, pawn.Coordinates).Contains(tile))
+            if (GameManager.GameState == GameState.Dynamic && !GetMoves(piece.PieceType, piece.Coordinates).Contains(tile))
             {
                 return false;
             }
 
-            if (pawn.IsPlacedOnTile)
+            if (piece.IsPlacedOnTile)
             {
-                pawn.CurrentTile.RemovePawn(pawn);
+                piece.CurrentTile.RemovePiece(piece);
             }
 
-            tile.PlacePawnOn(pawn);
-            pawn.PlaceOnTile(tile);
+            tile.PlacePieceOn(piece);
+            piece.PlaceOnTile(tile);
 
-            OnPawnPlacedOnTile?.Invoke(pawn);
+            OnPiecePlacedOnTile?.Invoke(piece);
             return true;
         }
 
         public bool HasPlayerFormedATicTacToe(PlayerType playerType)
         {
-            List<Pawn> playerPawns = _pawnsByPlayer[playerType];
+            List<Piece> playerPieces = _piecesByPlayer[playerType];
             Vector2? direction = null;
 
-            for (int i = 0; i < playerPawns.Count; i++)
+            for (int i = 0; i < playerPieces.Count; i++)
             {
-                // A pawn is not placed on a tile, so not possible to form a TicTacToe
-                if (!playerPawns[i].IsPlacedOnTile)
+                // A piece is not placed on a tile, so not possible to form a TicTacToe
+                if (!playerPieces[i].IsPlacedOnTile)
                 {
                     return false;
                 }
@@ -287,7 +287,7 @@ namespace RaphaelHerve.Tatedrez.Game
                     continue;
                 }
 
-                Vector2 tmpDirection = (Vector2)(playerPawns[0].Coordinates - playerPawns[i].Coordinates);
+                Vector2 tmpDirection = (Vector2)(playerPieces[0].Coordinates - playerPieces[i].Coordinates);
                 tmpDirection.Normalize();
 
                 // First direction calculated, store it for next iterations
@@ -299,7 +299,7 @@ namespace RaphaelHerve.Tatedrez.Game
 
                 float cross = direction.Value.x * tmpDirection.y - direction.Value.y * tmpDirection.x;
 
-                // The resulting vectors are not aligned, meaning pawns are not aligned either
+                // The resulting vectors are not aligned, meaning pieces are not aligned either
                 if (cross != 0)
                 {
                     return false;
@@ -309,13 +309,13 @@ namespace RaphaelHerve.Tatedrez.Game
             return true;
         }
 
-        public bool AreAllPawnsPlaced()
+        public bool AreAllPiecesPlaced()
         {
-            foreach (List<Pawn> pawnList in _pawnsByPlayer.Values)
+            foreach (List<Piece> pieceList in _piecesByPlayer.Values)
             {
-                foreach (Pawn pawn in pawnList)
+                foreach (Piece piece in pieceList)
                 {
-                    if (!pawn.IsPlacedOnTile)
+                    if (!piece.IsPlacedOnTile)
                     {
                         return false;
                     }
@@ -327,9 +327,9 @@ namespace RaphaelHerve.Tatedrez.Game
 
         public bool CanPlayerPlay(PlayerType playerType)
         {
-            foreach (Pawn pawn in _pawnsByPlayer[playerType])
+            foreach (Piece piece in _piecesByPlayer[playerType])
             {
-                if (GetMoves(pawn.PawnType, pawn.Coordinates).Count > 0)
+                if (GetMoves(piece.PieceType, piece.Coordinates).Count > 0)
                 {
                     return true;
                 }

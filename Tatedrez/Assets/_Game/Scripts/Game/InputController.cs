@@ -14,10 +14,10 @@ namespace RaphaelHerve.Tatedrez.Game
         [SerializeField]
         private LayerMask _tileLayerMask;
         [SerializeField]
-        private LayerMask _pawnLayerMask;
+        private LayerMask _pieceLayerMask;
 
         private UnityEngine.Camera _mainCamera;
-        private Pawn _selectedPawn;
+        private Piece _selectedPiece;
         private Tile _selectedTile;
         private List<Tile> _possibleMoves = new();
 
@@ -76,48 +76,48 @@ namespace RaphaelHerve.Tatedrez.Game
 
         private void HandleInputPress()
         {
-            // All inputs start with selecting a pawn
-            if (!TryGetPawnOnRaycast(out Pawn pawn))
+            // All inputs start with selecting a piece
+            if (!TryGetPieceOnRaycast(out Piece piece))
             {
                 return;
             }
 
-            // Can't select other player's pawn
-            if (pawn.Owner != GameManager.CurrentPlayer)
+            // Can't select other player's piece
+            if (piece.Owner != GameManager.CurrentPlayer)
             {
                 return;
             }
 
-            // Pawn is already placed on board
-            if (InputMode == InputMode.PiecePlacement && pawn.IsPlacedOnTile)
+            // Piece is already placed on board
+            if (InputMode == InputMode.PiecePlacement && piece.IsPlacedOnTile)
             {
                 return;
             }
 
-            _selectedPawn = pawn;
-            _selectedPawn.StartDragging();
+            _selectedPiece = piece;
+            _selectedPiece.StartDragging();
 
-            // When selecting a pawn, highlight its possible moves
+            // When selecting a piece, highlight its possible moves
             if (InputMode == InputMode.Dynamic)
             {
-                _possibleMoves = GameManager.Board.GetMoves(pawn.PawnType, pawn.Coordinates);
+                _possibleMoves = GameManager.Board.GetMoves(piece.PieceType, piece.Coordinates);
                 GameManager.Board.ShowTilesHighlight(_possibleMoves);
             }
         }
 
         private void HandleInputDrag()
         {
-            // No selected pawn
-            if (_selectedPawn == null)
+            // No selected piece
+            if (_selectedPiece == null)
             {
                 return;
             }
 
             // Raycasting on a valid tile, snap to it
-            if (TryGetTileOnRaycast(out Tile tile) && GameManager.Board.CanPlacePawnOnTile(_selectedPawn, tile))
+            if (TryGetTileOnRaycast(out Tile tile) && GameManager.Board.CanPlacePieceOnTile(_selectedPiece, tile))
             {
                 _selectedTile = tile;
-                _selectedPawn.MoveTo(tile.transform.position);
+                _selectedPiece.MoveTo(tile.transform.position);
                 return;
             }
 
@@ -126,30 +126,30 @@ namespace RaphaelHerve.Tatedrez.Game
             // Raycast on default plane, simply move around
             if (RaycastDefaultPlane(out RaycastHit hitInfo))
             {
-                _selectedPawn.MoveTo(hitInfo.point);
+                _selectedPiece.MoveTo(hitInfo.point);
                 return;
             }
         }
 
         private void HandleInputRelease()
         {
-            // No selected pawn
-            if (_selectedPawn == null)
+            // No selected piece
+            if (_selectedPiece == null)
             {
                 return;
             }
 
-            // Invalid move, move pawn back to its previous position
-            if (_selectedTile == null || !GameManager.Board.TryPlacePawnOnTile(_selectedPawn, _selectedTile))
+            // Invalid move, move piece back to its previous position
+            if (_selectedTile == null || !GameManager.Board.TryPlacePieceOnTile(_selectedPiece, _selectedTile))
             {
-                _selectedPawn.MoveTo(_selectedPawn.PreviousPosition);
+                _selectedPiece.MoveTo(_selectedPiece.PreviousPosition);
             }
 
             _possibleMoves.Clear();
             GameManager.Board.HideTilesHighlights();
 
-            _selectedPawn.StopDragging();
-            _selectedPawn = null;
+            _selectedPiece.StopDragging();
+            _selectedPiece = null;
         }
 
         private bool RaycastDefaultPlane(out RaycastHit hitInfo) => _defaultRaycastPlane.Raycast(_mainCamera.ScreenPointToRay(Input.mousePosition), out hitInfo, float.MaxValue);
@@ -167,6 +167,6 @@ namespace RaphaelHerve.Tatedrez.Game
 
         private bool TryGetTileOnRaycast(out Tile tile) => TryGetComponentOnRaycast(_tileLayerMask, out tile);
 
-        private bool TryGetPawnOnRaycast(out Pawn pawn) => TryGetComponentOnRaycast(_pawnLayerMask, out pawn);
+        private bool TryGetPieceOnRaycast(out Piece piece) => TryGetComponentOnRaycast(_pieceLayerMask, out piece);
     }
 }

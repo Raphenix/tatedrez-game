@@ -1,6 +1,6 @@
 namespace RaphaelHerve.Tatedrez.Enums
 {
-    public enum PawnType
+    public enum PieceType
     {
         None = 0,
 

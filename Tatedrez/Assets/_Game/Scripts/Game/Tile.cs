@@ -10,10 +10,10 @@ namespace RaphaelHerve.Tatedrez.Game
         [ShowNonSerializedField]
         private Vector2Int _coordinates;
         [ShowNonSerializedField]
-        private Pawn _pawn;
+        private Piece _piece;
 
         public Vector2Int Coordinates => _coordinates;
-        public bool HasPawnOn => _pawn != null;
+        public bool HasPieceOn => _piece != null;
 
         public void Init(int x, int y)
         {
@@ -21,32 +21,32 @@ namespace RaphaelHerve.Tatedrez.Game
             HideHighlight();
         }
 
-        public void PlacePawnOn(Pawn pawn)
+        public void PlacePieceOn(Piece piece)
         {
-            if (_pawn != null)
+            if (_piece != null)
             {
-                Debug.LogError($"Tile already has {_pawn} on", _pawn);
+                Debug.LogError($"Tile already has {_piece} on", _piece);
                 return;
             }
 
-            _pawn = pawn;
+            _piece = piece;
         }
 
-        public void RemovePawn(Pawn pawn)
+        public void RemovePiece(Piece piece)
         {
-            if (_pawn == null)
+            if (_piece == null)
             {
-                Debug.LogError("Tile doesn't contains any pawn", this);
+                Debug.LogError("Tile doesn't contains any piece", this);
                 return;
             }
 
-            if (pawn != _pawn)
+            if (piece != _piece)
             {
-                Debug.LogError($"Tile doesn't contain {pawn}", this);
+                Debug.LogError($"Tile doesn't contain {piece}", this);
                 return;
             }
 
-            _pawn = null;
+            _piece = null;
         }
 
         public void ShowHighlight()

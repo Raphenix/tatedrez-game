@@ -9,28 +9,32 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -400368282195308359, guid: a8c497c2efcd1bc4b87e78d235c37865, type: 3}
       propertyPath: _pawnType
-      value: 1
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: -400368282195308359, guid: a8c497c2efcd1bc4b87e78d235c37865, type: 3}
+      propertyPath: _pieceType
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: -400368282195308359, guid: a8c497c2efcd1bc4b87e78d235c37865, type: 3}
       propertyPath: _player1Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: a2daf251bd5718b44b37eeb5ad8b6d0f, type: 3}
+      objectReference: {fileID: 21300000, guid: 7b9d25e3b7b92f548aca864f7c44c3bd, type: 3}
     - target: {fileID: -400368282195308359, guid: a8c497c2efcd1bc4b87e78d235c37865, type: 3}
       propertyPath: _player2Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: e12f2ab291e8d7f4b9898f158c9e68bc, type: 3}
+      objectReference: {fileID: 21300000, guid: c357ed9aac795944a85a88ac1251b8a9, type: 3}
     - target: {fileID: -400368282195308359, guid: a8c497c2efcd1bc4b87e78d235c37865, type: 3}
       propertyPath: _playerASprite
       value: 
-      objectReference: {fileID: 21300000, guid: a2daf251bd5718b44b37eeb5ad8b6d0f, type: 3}
+      objectReference: {fileID: 21300000, guid: 7b9d25e3b7b92f548aca864f7c44c3bd, type: 3}
     - target: {fileID: -400368282195308359, guid: a8c497c2efcd1bc4b87e78d235c37865, type: 3}
       propertyPath: _playerBSprite
       value: 
-      objectReference: {fileID: 21300000, guid: e12f2ab291e8d7f4b9898f158c9e68bc, type: 3}
+      objectReference: {fileID: 21300000, guid: c357ed9aac795944a85a88ac1251b8a9, type: 3}
     - target: {fileID: 4878283941751996830, guid: a8c497c2efcd1bc4b87e78d235c37865, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: e12f2ab291e8d7f4b9898f158c9e68bc, type: 3}
+      objectReference: {fileID: 21300000, guid: c357ed9aac795944a85a88ac1251b8a9, type: 3}
     - target: {fileID: 4878283941751996830, guid: a8c497c2efcd1bc4b87e78d235c37865, type: 3}
       propertyPath: m_WasSpriteAssigned
       value: 1
@@ -81,7 +85,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8132681676562681719, guid: a8c497c2efcd1bc4b87e78d235c37865, type: 3}
       propertyPath: m_Name
-      value: Knight
+      value: Bishop
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a8c497c2efcd1bc4b87e78d235c37865, type: 3}

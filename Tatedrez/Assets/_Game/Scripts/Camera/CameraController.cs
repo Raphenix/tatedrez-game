@@ -43,7 +43,7 @@ namespace RaphaelHerve.Tatedrez.Camera
         {
             GameManager.OnCurrentPlayerChanged += CurrentPlayerChanged;
             GameManager.OnGameStateChanged += GameStateChanged;
-            GameManager.Board.OnPawnPlacedOnTile += OnPawnPlacedOnTile;
+            GameManager.Board.OnPiecePlacedOnTile += OnPiecePlacedOnTile;
 
             transform.rotation = Quaternion.Euler(_idleAngle, 0f, 0f);
 
@@ -79,7 +79,7 @@ namespace RaphaelHerve.Tatedrez.Camera
 
             if (GameManager.Board != null)
             {
-                GameManager.Board.OnPawnPlacedOnTile += OnPawnPlacedOnTile;
+                GameManager.Board.OnPiecePlacedOnTile += OnPiecePlacedOnTile;
             }
         }
 
@@ -103,7 +103,7 @@ namespace RaphaelHerve.Tatedrez.Camera
             _rotationTween = transform.DOLocalRotateQuaternion(rotation, .25f);
         }
 
-        private void OnPawnPlacedOnTile(Pawn pawn)
+        private void OnPiecePlacedOnTile(Piece piece)
         {
             _shakeTween?.Kill();
             //_shakeTween = transform.DOJump(transform.position, .1f, 1, .1f);
