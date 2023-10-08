@@ -1,0 +1,20 @@
+Improvements/ideas for future development:
+- Adding sound
+- Adding a "toss the coin" animation to pick the player to start
+- Adding more VFX:
+	- A trail on the pieces
+	- A smoke puff or similar when placing a piece
+	- Victory particles (confettis)
+- Implement a store with presets for:
+	- Board (the base of it)
+	- Tiles (may need to relate to board to avoid artistic direction discrepancies)
+	- Pawns (could be sets for both players)
+	- VFXs (for trails, placement smoke puffs, etc.)
+- Adding some presets for the board tiles and/or pawns (maybe a preset should contains a visual for both the tiles and pawns, to avoid discrepancies in the artistic direction)
+- Adding a decor around the game board
+- Adding more physical feedbacks to pieces
+	- When placing them
+	- When one is placed nearby
+	- When a tic-tac-toe is formed (exaggerated since it's the end move)
+- On the codebase side, add some tools to handle DOTween animation with components setup in the inspector, which I haven't done yet since there were not much of them
+- Adding a mode versus bot

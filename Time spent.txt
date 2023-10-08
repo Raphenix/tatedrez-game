@@ -1,0 +1,14 @@
+Time spent on the test:
+- Friday:
+	- 30 minutes on the project setup
+- Saturday:
+	- 2h for the game board setup and the project architecture
+	- 3h for the global game logic setup and a beginning of UI
+	- 2h for the controls improvements and finalizing the game logic
+- Sunday:
+	- 2h to implement game reset, change visuals colors, and create CameraController
+	- 1h to improve UI and implement screens transitions
+	- 30 minutes to add haptics
+	- 1h+ overall writing this document
+
+Total time: around 12 hours

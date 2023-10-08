@@ -1,0 +1,51 @@
+Implementation choices:
+
+I decided to make the game in a way that players will play from both sides of the device, keeping the true feeling of playing against someone on a board game.
+I implemented a bi-directional UI, a slight tilt of the board and the rotation of the pieces so that both players can have the same best visibility on the board.
+
+Even though the game of Tatedrez has fixed rules (about the size of the board, the number of pieces and their type), I made it so it would be possible to change these settings, to have a board with a different number of rows and/or columns, and other pieces.
+
+
+Global project structure:
+- I created a _Game folder early in the Assets folder to put all "personal" assets (as in not plugin or external tools), as I find it allows a better readability of the root of the Assets folder, since you can easily get mixed up when there are a lot of assets in a project
+- The folders within this _Game folder are pretty standard architecture
+- Inside the Script folder, I tried to respect that hierarchy in the namespaces I used (RaphaelHerve.Tatedrez.<folder-name>), clearly splitting the logic of my code
+- I created "visual-only" prefabs for the environment, and placed them directly into the Game scene since they didn't need to be dynamically instantiated for now
+	- NB: These will need to be dynamic later on if we want to have different boards, or have some Materials changes
+
+
+Codebase choices:
+The game only has one scene that will be properly reset (not reloaded) when a game is over, returning to the "home" state
+About the enums:
+- Put in a namespace of their own
+- I usually add a "None" type with the id 0 to my enums to handle unproper/exception uses more easily
+
+Game scripts:
+- GameManger.cs: Singleton, it is the entry point of the game, handling the global logic of the game:
+	- Creating the board
+	- Handling player turn changes
+- Board.cs:
+	- Creates its tiles to have dynamic placement
+	- Creates the pieces for each player
+	- Holds the main Tatedrez logic, handling the moves calculations and checks
+- Pawn.cs:
+	- Handles its visual and movement
+	- I decided to have a simple enum for PieceType instead of having a more complex architecture with inheritance or anything else, because the only logic difference is held by the Board
+	- Base piece prefab with variants for Rook, Knight and Bishop, holding visual differences and different PieceType
+- Tile.cs:
+	- Has info about a potential piece that could be on it
+	- Can display a highlight (currently only used to display a piece's possible moves)
+
+"Other" scripts:
+- InputManager.cs:
+	- Basically handles player inputs
+	- Written in a way so no game script reference the InputManager
+- UI:
+	- Singleton UIManager (UI prefab) that has link to all the screens (a prefab for each screen)
+	- Also written in a way so no game script reference UI scripts
+- CameraController.cs:
+	- Handles all camera movements/rotations
+	- Also written in a way so no game script reference the CameraController
+- HapticsManager.cs:
+	- Handles all the haptics (and takes care of haptics being called on the same frame, only triggering the "strongest" one)
+	- Also written in a way so no game script reference the HapticsManager
